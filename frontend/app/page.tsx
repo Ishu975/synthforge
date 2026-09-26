@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function Home() {
   const [usernameInput, setUsernameInput] = useState("");
@@ -12,12 +12,13 @@ export default function Home() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
 
-  // Centralized API Routing - Points directly to your live Render server
+  // The base URL without a trailing slash
   const API_BASE = "https://synthforge-api-o628.onrender.com";
 
   const fetchHistory = async (user: string) => {
     try {
-      const response = await fetch(`${API_BASE}/history/${user}`);
+      // Matches @app.get("/api/history/{username}")
+      const response = await fetch(`${API_BASE}/api/history/${user}`);
       const data = await response.json();
       setHistory(data.history || []);
     } catch (error) {
@@ -43,10 +44,12 @@ export default function Home() {
     if (!inputText.trim()) return;
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/analyze`, {
+      // Matches @app.post("/api/annotate")
+      const response = await fetch(`${API_BASE}/api/annotate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: inputText, user: activeUser }),
+        // Matches AnnotationRequest(username, raw_text)
+        body: JSON.stringify({ raw_text: inputText, username: activeUser }),
       });
       await response.json();
       fetchHistory(activeUser);
@@ -66,7 +69,8 @@ export default function Home() {
     formData.append("user", activeUser);
 
     try {
-      const response = await fetch(`${API_BASE}/batch`, {
+      // Matches @app.post("/api/batch")
+      const response = await fetch(`${API_BASE}/api/batch`, {
         method: "POST",
         body: formData,
       });
@@ -88,7 +92,8 @@ export default function Home() {
     formData.append("user", activeUser);
 
     try {
-      const response = await fetch(`${API_BASE}/vision`, {
+      // Matches @app.post("/api/vision")
+      const response = await fetch(`${API_BASE}/api/vision`, {
         method: "POST",
         body: formData,
       });
@@ -205,7 +210,6 @@ export default function Home() {
                 {imageLoading ? "Analyzing..." : "Analyze Image"}
               </button>
             </div>
-
           </div>
 
           {/* Data Output Column */}
@@ -217,26 +221,26 @@ export default function Home() {
               </h2>
               
               <div className="space-y-4 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar">
-                
-                {/* SAFELY FORMATTED JSX BLOCK */}
                 {(!history || history.length === 0) ? (
                   <div className="text-center text-gray-500 mt-20">
                     No extraction history found for this workspace.
                   </div>
                 ) : (
-                  history.slice().reverse().map((item, i) => (
-                    <div key={i} className="bg-gray-950 p-4 rounded-lg border border-gray-800 border-l-4 border-l-cyan-500 shadow-sm">
-                      <div className="text-xs text-gray-500 mb-2">ID: {item.id}</div>
-                      <div className="mb-3 text-sm text-gray-300">{item.input_data}</div>
-                      <pre className="bg-black/50 p-3 rounded text-xs text-green-400 overflow-x-auto border border-gray-800">
-                        {typeof item.extracted_json === 'string' 
-                          ? item.extracted_json 
-                          : JSON.stringify(item.extracted_json, null, 2)}
+                  history.slice().map((item, i) => (
+                    <div key={i} className="bg-gray-950 p-4 rounded-lg border border-gray-800 border-l-4 border-l-cyan-500 shadow-sm flex flex-col gap-2">
+                      <div className="flex justify-between items-center text-xs text-gray-500">
+                        <span>ID: {item.id}</span>
+                        <span className="uppercase bg-gray-800 px-2 py-1 rounded">{item.type}</span>
+                      </div>
+                      <div className="text-sm text-gray-300 border-b border-gray-800 pb-2">{item.input_data}</div>
+                      <pre className="bg-black/50 p-3 rounded text-xs text-green-400 overflow-x-auto border border-gray-800 whitespace-pre-wrap">
+                        {typeof item.ai_result === 'string' 
+                          ? item.ai_result 
+                          : JSON.stringify(item.ai_result, null, 2)}
                       </pre>
                     </div>
                   ))
                 )}
-                
               </div>
             </div>
           </div>
@@ -245,5 +249,4 @@ export default function Home() {
     </div>
   );
 }
-
     
