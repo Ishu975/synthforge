@@ -14,7 +14,7 @@ export default function Home() {
 
   const fetchHistory = async (user: string) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/history?username=${user}`);
+      const response = await fetch(`https://synthforge-api-o628.onrender.com/`);
       const data = await response.json();
       setHistory(data.history);
     } catch (error) {
