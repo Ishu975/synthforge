@@ -11,11 +11,6 @@ SynthForge is a full-stack, enterprise-grade AI platform that leverages Google's
 * **Multi-Tenant Architecture:** Built-in SQLite authentication separating workspaces and historical data.
 * **Dataset Export:** Instant compilation and export of the database log into `.csv` formats for ML training.
 
-## 🧪 Try it Live
-Want to test the core Python extraction engine without booting up the full Next.js/FastAPI stack? Run the backend pipeline directly in your browser:
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Ishu975/synthforge/blob/main/SynthForge_Playground.ipynb)
-
 ## 🛠️ Tech Stack
 * **Frontend:** Next.js (React), Tailwind CSS (Cyber-Neon Aesthetics) — *Deployed on Vercel*
 * **Backend:** Python, FastAPI, Uvicorn — *Deployed on Render*
