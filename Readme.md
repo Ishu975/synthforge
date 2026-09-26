@@ -24,7 +24,10 @@ SynthForge is a multimodal, full-stack internal tool designed to automate data l
 * **Batch Processing:** Handles bulk `.txt` file uploads, routing asynchronous requests to the LLM backend.
 * **Multi-Tenant Architecture:** Built-in SQLite authentication separating workspace data between different users.
 * **Dataset Export:** Instant compilation and export of the vector database log into `.csv` formats for ML training.
+## 🧪 Try it Live
+Want to test the extraction engine without installing the full Next.js/FastAPI stack? Run the core pipeline directly in your browser:
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Ishu975/synthforge/blob/main/SynthForge_Playground.ipynb)
 ## 🛠️ Tech Stack
 * **Frontend:** Next.js (React), Tailwind CSS (Glassmorphism & Cyber-Neon Aesthetics)
 * **Backend:** Python, FastAPI, Uvicorn

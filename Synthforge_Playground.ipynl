@@ -1,0 +1,50 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# 🧪 SynthForge: Live API Playground\n",
+    "Run this notebook to test the core NLP extraction engine directly in your browser. No local installation required."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 1. Install Dependencies\n",
+    "!pip install -q google-generativeai\n",
+    "import google.generativeai as genai\n",
+    "import json\n",
+    "\n",
+    "# 2. Authenticate (Enter a Gemini API Key when prompted)\n",
+    "import getpass\n",
+    "api_key = getpass.getpass('Enter Gemini API Key: ')\n",
+    "genai.configure(api_key=api_key)\n",
+    "model = genai.GenerativeModel('gemini-3.5-flash')\n",
+    "\n",
+    "# 3. Inject Test Payload\n",
+    "print('\\n--- SYSTEM READY ---')\n",
+    "payload = input('Enter raw text to annotate: ')\n",
+    "\n",
+    "# 4. Run Enterprise Extraction\n",
+    "prompt = f\"\"\"\n",
+    "You are an enterprise AI data extraction engine. Analyze the following text payload and extract a highly structured JSON response including:\n",
+    "1. \\\"primary_sentiment\\\": Positive, Negative, or Neutral.\n",
+    "2. \\\"sentiment_confidence\\\": Float between 0.0 and 1.0.\n",
+    "3. \\\"user_intent\\\": A clear classification of the user's goal.\n",
+    "Format strictly as JSON. Payload: \\\"{payload}\\\"\"\n",
+    "\"\"\"\n",
+    "\n",
+    "response = model.generate_content(prompt)\n",
+    "print('\\n--- STRUCTURAL OUTPUT ---')\n",
+    "print(response.text)"
+   ]
+  }
+ ],
+ "metadata": {},
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
