@@ -12,12 +12,10 @@ export default function Home() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
 
-  // The base URL without a trailing slash
   const API_BASE = "https://synthforge-api-o628.onrender.com";
 
   const fetchHistory = async (user: string) => {
     try {
-      // Matches @app.get("/api/history/{username}")
       const response = await fetch(`${API_BASE}/api/history/${user}`);
       const data = await response.json();
       setHistory(data.history || []);
@@ -44,11 +42,9 @@ export default function Home() {
     if (!inputText.trim()) return;
     setLoading(true);
     try {
-      // Matches @app.post("/api/annotate")
       const response = await fetch(`${API_BASE}/api/annotate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Matches AnnotationRequest(username, raw_text)
         body: JSON.stringify({ raw_text: inputText, username: activeUser }),
       });
       await response.json();
@@ -69,7 +65,6 @@ export default function Home() {
     formData.append("user", activeUser);
 
     try {
-      // Matches @app.post("/api/batch")
       const response = await fetch(`${API_BASE}/api/batch`, {
         method: "POST",
         body: formData,
@@ -92,7 +87,6 @@ export default function Home() {
     formData.append("user", activeUser);
 
     try {
-      // Matches @app.post("/api/vision")
       const response = await fetch(`${API_BASE}/api/vision`, {
         method: "POST",
         body: formData,
@@ -105,6 +99,32 @@ export default function Home() {
     } finally {
       setImageLoading(false);
     }
+  };
+
+  // NEW: Function to generate and download CSV
+  const downloadCSV = () => {
+    if (history.length === 0) return;
+
+    const headers = ["ID", "Type", "Input Data", "AI Result"];
+    const rows = history.slice().reverse().map(item => {
+      // Escape quotes and wrap in quotes for CSV formatting
+      const input = `"${String(item.input_data).replace(/"/g, '""')}"`;
+      const result = typeof item.ai_result === 'string' 
+        ? `"${item.ai_result.replace(/"/g, '""')}"`
+        : `"${JSON.stringify(item.ai_result).replace(/"/g, '""')}"`;
+      return [item.id, item.type, input, result].join(",");
+    });
+
+    const csvContent = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${activeUser}_synthforge_dataset.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (!activeUser) {
@@ -156,8 +176,6 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Controls Column */}
           <div className="lg:col-span-1 space-y-6">
-            
-            {/* Text Extraction */}
             <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 p-6 rounded-2xl">
               <h2 className="text-lg font-semibold text-cyan-300 mb-4">Live NLP Extraction</h2>
               <textarea
@@ -175,7 +193,6 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Batch Upload */}
             <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 p-6 rounded-2xl">
               <h2 className="text-lg font-semibold text-cyan-300 mb-4">Batch Processing (.txt)</h2>
               <input
@@ -193,7 +210,6 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Vision AI */}
             <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 p-6 rounded-2xl">
               <h2 className="text-lg font-semibold text-cyan-300 mb-4">Multimodal Vision AI</h2>
               <input
@@ -215,10 +231,22 @@ export default function Home() {
           {/* Data Output Column */}
           <div className="lg:col-span-2">
             <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 p-6 rounded-2xl h-full min-h-[600px]">
-              <h2 className="text-lg font-semibold text-cyan-300 mb-4 flex items-center justify-between">
-                <span>Structured Data Log</span>
-                <span className="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded">Live Sync</span>
-              </h2>
+              
+              {/* NEW: Added the Download CSV Button to the Header */}
+              <div className="flex items-center justify-between mb-4 border-b border-gray-800 pb-4">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-lg font-semibold text-cyan-300">Structured Data Log</h2>
+                  <span className="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded">Live Sync</span>
+                </div>
+                <button
+                  onClick={downloadCSV}
+                  disabled={!history || history.length === 0}
+                  className="text-xs font-medium px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 rounded transition-colors flex items-center gap-2 disabled:opacity-50"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                  Export CSV
+                </button>
+              </div>
               
               <div className="space-y-4 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar">
                 {(!history || history.length === 0) ? (
